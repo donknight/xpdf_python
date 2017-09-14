@@ -35,6 +35,9 @@ def to_text(file_loc, page_nums = True):
 		cd = os.getcwd()
 		full_file_loc = os.path.join(cd, file_loc)
 
+	path, file = os.path.split(full_file_loc)
+	saved_file = os.path.join(path, os.path.splitext(file)[0] + '.txt')
+
 	text = ''
 	actual_count = 0
 
@@ -49,10 +52,10 @@ def to_text(file_loc, page_nums = True):
 			actual = i + 1
 			# Calls xpdf 
 			subprocess.call(['pdftotext', '-f', str(actual),'-l', str(actual), full_file_loc])
-			# Opens file saved to disk 
-			saved_file = full_file_loc.replace('.pdf','.txt')
-			file = open(saved_file,'r', encoding = "ISO-8859-1")
-			t = file.read()
+
+			# Opens file saved to disk, ensures it will always close when done
+			with open(saved_file, 'r', encoding='ISO-8859-1') as file:
+				t = file.read()
 			# If the page is blank, it is not a real page
 			if t == '':
 				continue
@@ -60,7 +63,7 @@ def to_text(file_loc, page_nums = True):
 				actual_count += 1
 			# Add text and page count to existing string
 			text += '***Page {}*** {}'.format(actual, t)
-			file.close()
+
 	else:
 		# TO BE IMPLEMENTED
 		pass
